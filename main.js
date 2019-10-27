@@ -1,34 +1,28 @@
 'use strict';
 
 const rp = require('request-promise-native');
+const url = require('url');
 const CosmosClient = require('@azure/cosmos').CosmosClient;
 
 
 module.exports = async function (context) {
 
+    var url_parts = url.parse(context.request.url, true);
+    var query = url_parts.query;
+
     const databaseId = "Families";
     const containerId = "Families";
-    const cosmosDbPrimaryKey = "pNyR8nSpamqpWbLTkF2GzwBunX58datla7jcPxKWSJqKAI7Exg8a5q0ECAjTOVipfyKFnvdLhb7EKScgmd7Ltg==";
-    const cosmosDbEndPoint = "https://mlotian-cosmosdb-account.documents.azure.com:443";
+
+    var cosmosDbEndPoint = context.request.headers['cosmosdb-endpoint'];
+    var cosmosDbPrimaryKey = context.request.headers['cosmosdb-primary-key'];
 
     const client = new CosmosClient({ endpoint: cosmosDbEndPoint, auth: { masterKey: cosmosDbPrimaryKey } });
 
-    const querySpec = {
-        query: "select * from c",
-        parameters: []
-    };
-
-    const { result: results } = await client.database(databaseId).container(containerId).items.query(querySpec, {enableCrossPartitionQuery:true}).toArray();
-    let stringBody = "";
-    for (var queryResult of results) {
-        stringBody = JSON.stringify(queryResult);
-    }
+    const result  = await client.database(query.databaseId).container(query.containerId).items.query(context.request.body, {enableCrossPartitionQuery:true}).toArray();
 
     return {
         status: 200,
-        body: {
-            text: `hello ${stringBody} `
-        },
+        body: JSON.stringify(result),
         headers: {
             'Content-Type': 'application/json'
         }
