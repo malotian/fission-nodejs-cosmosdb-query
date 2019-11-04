@@ -31,7 +31,7 @@ Change line of the file `service-l7.yaml` replacing the dummy id with a valid on
         fission fn test --name fission-nodejs-cosmosdb-query
 
 # create a route(ingress)
-fission route create --url /fission-nodejs-cosmosdb-query --function fission-nodejs-cosmosdb-query --createingress
+        fission route create --url /fission-nodejs-cosmosdb-query --function fission-nodejs-cosmosdb-query --createingress
 
 # test a route(ingress)
 	curl -vsk POST \  
